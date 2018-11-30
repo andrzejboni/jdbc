@@ -6,7 +6,7 @@ import lombok.Data;
 public class Student {
     private Long id;
     private String imie;
-    private double nazwisko;
+    private String nazwisko;
 
 }
 

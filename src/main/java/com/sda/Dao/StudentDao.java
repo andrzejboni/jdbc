@@ -20,20 +20,13 @@ public class StudentDao {
             ") ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;\n";
 
 
-    private final static String DELETE_QUERRRY = "DELETE FROM `courses`.`student`\n" +
-            "WHERE id=?";
+    private final static String DELETE_QUERRRY = "DELETE FROM `courses`.`student` WHERE id=?";
 
 
-    private final static String INSERT_QUERY = "INSERT INTO `courses`.`student`\n" +
-            "(`id_student`,\n" +
-            "`imie`,\n" +
-            "`nazwisko`)\n" +
-            "VALUES\n" +
-            "NULL,\n" +
-            "?,\n" +
-            "?;\n";
+    private final static String INSERT_QUERY = "INSERT INTO `courses`.`student` (`id_student`, `imie`, `nazwisko`) VALUES (NULL,?,?);";
 
-    private final static String SELECT_QUERRY = "SELECT * FROM courses";
+
+    private final static String SELECT_QUERRY = "SELECT * FROM student";
 
     public List<Student> select() {
         List<Student> students = new ArrayList<>();
@@ -42,12 +35,12 @@ public class StudentDao {
             try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_QUERRY)) {
                 ResultSet resultSet = preparedStatement.executeQuery();
 
-                while (resultSet.next()){ // dopóki sa rekordy
+                while (resultSet.next()) { // dopóki sa rekordy
                     Student student = new Student();
 
                     student.setId(resultSet.getLong(1));
                     student.setImie(resultSet.getString(2));
-                    student.setNazwisko(resultSet.getDouble(3));
+                    student.setNazwisko(resultSet.getString(3));
 
 
                     students.add(student);
@@ -69,6 +62,8 @@ public class StudentDao {
         createTableIfNotExists();
     }
 
+
+
     private void createTableIfNotExists() {
         try (Connection connection = connectionFactory.getConnection()) {
 
@@ -83,11 +78,11 @@ public class StudentDao {
     }
 
 
-    public void delete(Course course) {
+    public void delete(Student student) {
         try (Connection connection = connectionFactory.getConnection()) {
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(DELETE_QUERRRY)) {
-                preparedStatement.setLong(1, course.getId());
+                preparedStatement.setLong(1, student.getId());
 
                 boolean result = preparedStatement.execute();
                 System.out.println("Delete: " + result);
@@ -98,14 +93,13 @@ public class StudentDao {
         }
     }
 
-    public void insert(Course course) {
+    public void insert(Student student) {
         try (Connection connection = connectionFactory.getConnection()) {
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS)) {
                 System.out.println();
-                preparedStatement.setString(1, course.getNazwa());
-                preparedStatement.setDouble(2, course.getCena());
-                preparedStatement.setInt(3, course.getIloscGodzin());
+                preparedStatement.setString(1, student.getImie());
+                preparedStatement.setString(2, student.getNazwisko());
 
 
                 preparedStatement.executeUpdate();
@@ -113,9 +107,7 @@ public class StudentDao {
                 resultSet.next(); // przjedz do nastepnego klucza
 
                 System.out.println("Success insert" + resultSet.getInt(1));
-
-                course.setId(resultSet.getLong(1));
-
+                student.setId(resultSet.getLong(1));
             }
         } catch (SQLException e) {
             e.printStackTrace();
